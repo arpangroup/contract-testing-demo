@@ -12,6 +12,8 @@ public class ProductController {
 
     @GetMapping("/{productId}")
     public ProductResponse getProductDetails(@PathVariable String productId) {
-        return new ProductResponse("P123", "Samsung Mobile", 15000);
+        ProductResponse productResponse = new ProductResponse("P123", "Samsung Mobile", 15000);
+        productResponse.setActive(true);
+        return productResponse;
     }
 }

@@ -1,0 +1,64 @@
+{
+  "consumer": {
+    "name": "storefront-consumer"
+  },
+  "interactions": [
+    {
+      "description": "A GET request to fetch the details of product ID P123",
+      "key": "c3edf0cd",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "A product with ID P123 is available in the inventory"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/api/products/P123"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "price": 15000,
+            "productId": "P123",
+            "productName": "Samsung Mobile"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "status": 200
+      },
+      "matchingRules": {
+        "body": {
+          "$.content.productId": {
+            "match": "type"
+          },
+          "$.content.productName": {
+            "match": "type"
+          },
+          "$.content.price": {
+            "match": "number"
+          }
+        }
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.6.5"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "inventory-provider"
+  }
+}

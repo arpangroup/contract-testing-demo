@@ -6,9 +6,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class ProductResponse {
     private String productId;
     private String productName;
     private int price;
+    private boolean isActive;
+
+    public ProductResponse(String productId, String productName, int price) {
+        this.productId = productId;
+        this.productName = productName;
+        this.price = price;
+    }
 }

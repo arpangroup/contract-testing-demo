@@ -1,0 +1,64 @@
+package com.arpan.__rest_api_provider_app.contract;
+
+import au.com.dius.pact.provider.MessageAndMetadata;
+import au.com.dius.pact.provider.PactVerifyProvider;
+import au.com.dius.pact.provider.junit5.HttpTestTarget;
+import au.com.dius.pact.provider.junit5.MessageTestTarget;
+import au.com.dius.pact.provider.junit5.PactVerificationContext;
+import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
+import au.com.dius.pact.provider.junitsupport.Provider;
+import au.com.dius.pact.provider.junitsupport.State;
+import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.PactBrokerAuth;
+import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
+import au.com.dius.pact.provider.junitsupport.loader.PactUrl;
+import com.arpan.__rest_api_provider_app.dto.ProductResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+@Provider("inventory-provider")
+//@PactBroker(url = "http://localhost:9292", authentication = @PactBrokerAuth(token = "", username = "john@doe.com", password = "pkqBnpXX3u4o5wErioDeXA"))
+@PactFolder("src/test/resources/pacts/")
+//@PactUrl(urls = "file:C:\\temp\\pacts\\consumerservice-providerservice-pact.json")
+//@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class InventoryProviderPactTest {
+
+    @BeforeEach
+    void setup(PactVerificationContext context) {
+        //context.setTarget(new HttpTestTarget("localhost", 8085));
+        // context.setTarget(new MessageTestTarget());
+
+        context.setTarget(new HttpTestTarget("localhost", 8085));
+    }
+
+    @TestTemplate
+    @ExtendWith(PactVerificationInvocationContextProvider.class)
+    void pactVerificationTestTemplate(PactVerificationContext context) {
+        context.verifyInteraction();
+    }
+
+    @PactVerifyProvider("A GET request to fetch the details of product ID P123")
+    public String getProductDetails() throws JsonProcessingException {
+        ProductResponse product = new ProductResponse("P123", "Samsung Mobile", 15000);
+        product.setActive(true);
+        return new ObjectMapper().writeValueAsString(product); // Ensure the provider returns the full response with 'isActive'
+    }
+
+    @State("A product with ID P123 is available in the inventory")
+    public void productP123IsAvailable() {
+        System.out.println("Setting up provider state: A product with ID P123 is available in the inventory");
+        // Set up the necessary state, e.g., populate in-memory database or mock response
+
+//        ProductDto product = new ProductDto("P123", "Samsung Mobile", 15000);
+//        productService.addProduct(product); // Mock the service or set up an in-memory database with the product
+    }
+
+}

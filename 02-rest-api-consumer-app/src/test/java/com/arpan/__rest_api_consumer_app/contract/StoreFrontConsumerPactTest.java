@@ -1,11 +1,10 @@
 package com.arpan.__rest_api_consumer_app.contract;
 
 import au.com.dius.pact.consumer.MockServer;
-import au.com.dius.pact.consumer.dsl.LambdaDsl;
-import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
+import au.com.dius.pact.core.model.PactSpecVersion;
 import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import com.arpan.__rest_api_consumer_app.ProductDto;
@@ -18,13 +17,12 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(providerName = "inventory-provider")
-public class StudentConsumerPactTest {
+@PactTestFor(providerName = "inventory-provider", pactVersion = PactSpecVersion.V4)
+public class StoreFrontConsumerPactTest {
 
     @Pact(consumer = "storefront-consumer")
     public V4Pact createProductDetailsPact(PactDslWithProvider builder) throws IOException {
