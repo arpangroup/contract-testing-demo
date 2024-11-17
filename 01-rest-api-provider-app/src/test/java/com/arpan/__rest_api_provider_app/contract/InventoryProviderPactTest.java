@@ -33,10 +33,8 @@ public class InventoryProviderPactTest {
 
     @BeforeEach
     void setup(PactVerificationContext context) {
-        //context.setTarget(new HttpTestTarget("localhost", 8085));
-        // context.setTarget(new MessageTestTarget());
-
         context.setTarget(new HttpTestTarget("localhost", 8085));
+        // context.setTarget(new MessageTestTarget());
     }
 
     @TestTemplate
@@ -50,11 +48,11 @@ public class InventoryProviderPactTest {
         System.out.println("Setting up provider state: A product with ID P123 is available in the inventory");
     }
 
-    @PactVerifyProvider("A GET request to fetch the details of product ID P123")
-    public String getProductDetails() throws JsonProcessingException {
-        ProductResponse product = new ProductResponse("P123", "Samsung Mobile", 15000);
-        product.setActive(true);
-        return new ObjectMapper().writeValueAsString(product); // Ensure the provider returns the full response with 'isActive'
-    }
+//    @PactVerifyProvider("A GET request to fetch the details of product ID P123")
+//    public String getProductDetails() throws JsonProcessingException {
+//        ProductResponse product = new ProductResponse("P123", "Samsung Mobile", 15000);
+//        product.setActive(true);
+//        return new ObjectMapper().writeValueAsString(product); // Ensure the provider returns the full response with 'isActive'
+//    }
 
 }
