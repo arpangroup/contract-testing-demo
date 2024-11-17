@@ -45,20 +45,16 @@ public class InventoryProviderPactTest {
         context.verifyInteraction();
     }
 
+    @State("A product with ID P123 is available in the inventory")
+    public void productP123IsAvailable() {
+        System.out.println("Setting up provider state: A product with ID P123 is available in the inventory");
+    }
+
     @PactVerifyProvider("A GET request to fetch the details of product ID P123")
     public String getProductDetails() throws JsonProcessingException {
         ProductResponse product = new ProductResponse("P123", "Samsung Mobile", 15000);
         product.setActive(true);
         return new ObjectMapper().writeValueAsString(product); // Ensure the provider returns the full response with 'isActive'
-    }
-
-    @State("A product with ID P123 is available in the inventory")
-    public void productP123IsAvailable() {
-        System.out.println("Setting up provider state: A product with ID P123 is available in the inventory");
-        // Set up the necessary state, e.g., populate in-memory database or mock response
-
-//        ProductDto product = new ProductDto("P123", "Samsung Mobile", 15000);
-//        productService.addProduct(product); // Mock the service or set up an in-memory database with the product
     }
 
 }
