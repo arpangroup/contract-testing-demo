@@ -69,25 +69,4 @@ public class StudentProviderPactTestV1 {
         byte[] avroMessage = AvroUtil.getSampleAvroMessage(AVRO_SCHEMA_PATH);
         return Base64.getEncoder().encodeToString(avroMessage);
     }
-
-    private byte[] getSampleAvroMessage() {
-        try {
-            GenericRecord record = new GenericData.Record(schema);
-            record.put("studentName", "John Doe");
-            record.put("studentId", "S12345");
-            record.put("age", 30);
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            DatumWriter<GenericRecord> writer = new SpecificDatumWriter<>(schema);
-            BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(outputStream, null);
-
-            writer.write(record, encoder);
-            encoder.flush();
-
-            return Base64.getEncoder().encode(outputStream.toByteArray());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create Avro message", e);
-        }
-    }
-
 }
