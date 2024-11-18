@@ -4,6 +4,12 @@
   },
   "interactions": [
     {
+      "comments": {
+        "testname": "com.arpan.__rest_api_consumer_app.contract.StoreFrontConsumerPactTest.testProductDetailsPact(MockServer)",
+        "text": [
+
+        ]
+      },
       "description": "A GET request to fetch the details of product ID P123",
       "key": "c3edf0cd",
       "pending": false,
@@ -19,6 +25,7 @@
       "response": {
         "body": {
           "content": {
+            "active": true,
             "price": 15000,
             "productId": "P123",
             "productName": "Samsung Mobile"
@@ -32,19 +39,6 @@
           ]
         },
         "status": 200
-      },
-      "matchingRules": {
-        "body": {
-          "$.content.productId": {
-            "match": "type"
-          },
-          "$.content.productName": {
-            "match": "type"
-          },
-          "$.content.price": {
-            "match": "number"
-          }
-        }
       },
       "transport": "https",
       "type": "Synchronous/HTTP"

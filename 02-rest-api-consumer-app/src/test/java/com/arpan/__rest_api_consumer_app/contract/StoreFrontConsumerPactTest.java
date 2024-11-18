@@ -10,6 +10,7 @@ import au.com.dius.pact.core.model.annotations.Pact;
 import com.arpan.__rest_api_consumer_app.ProductDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
@@ -26,8 +27,14 @@ public class StoreFrontConsumerPactTest {
 
     @Pact(consumer = "storefront-consumer")
     public V4Pact createProductDetailsPact(PactDslWithProvider builder) throws IOException {
-        File file = ResourceUtils.getFile("src/test/resources/ProductDetailsResponse200.json");
-        String jsonBody = new String(Files.readAllBytes(file.toPath()));
+        // File file = ResourceUtils.getFile("src/test/resources/ProductDetailsResponse200.json");
+        // String jsonBody = new String(Files.readAllBytes(file.toPath()));
+
+        // Call the actual provider's endpoint to get the real response
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8085/api/products/P123", String.class);
+        String jsonBody = response.getBody();
+
 
         return builder
                 .given("A product with ID P123 is available in the inventory")
