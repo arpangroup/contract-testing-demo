@@ -49,13 +49,9 @@ public class StudentProviderPactTestV1 {
 
     @BeforeEach
     void setup(PactVerificationContext context) throws IOException {
-        System.out.println("Setting up the provider test context...");
-        // context.setTarget(new HttpTestTarget("localhost", 8080));
         context.setTarget(new MessageTestTarget());
         schema = new Schema.Parser().parse(new File(AVRO_SCHEMA_PATH));
     }
-
-
 
     @TestTemplate
     @ExtendWith(PactVerificationInvocationContextProvider.class)
@@ -63,22 +59,10 @@ public class StudentProviderPactTestV1 {
         context.verifyInteraction();
     }
 
-    @State("a student contract in Avro format")
-    public void prepareStudentMessage() {
-        String base64Content = "EEpvaG4gRG9lDFMxMjM0NTw="; // from your Pact file
-        byte[] avroPayload = Base64.getDecoder().decode(base64Content);
-
-        // Deserialize the Avro message
-        Student actualStudent = deserializeAvroMessage(avroPayload);
-
-        // Expected student object
-        Student expectedStudent = new Student("John Doe", "S12345", 30);
-
-        // Validate the content
-        assertThat(actualStudent).usingRecursiveComparison().isEqualTo(expectedStudent);
-    }
-
-
+    // @PactVerifyProvider("a student contract in Avro format") is used to define the provider method
+    // that returns the message contents for the specified interaction.
+    // The provideStudentMessage() method creates the Avro message, serializes it, and returns the Base64 encoded string.
+    // The serializeAvroMessage() method serializes the Student object to Avro binary format.
     @PactVerifyProvider("a student contract in Avro format")
     public String provideStudentMessage() {
         // Create the expected Avro message
@@ -87,22 +71,6 @@ public class StudentProviderPactTestV1 {
 
         // Return the Base64 encoded message as expected in the contract
         return Base64.getEncoder().encodeToString(avroMessage);
-    }
-
-    private Student deserializeAvroMessage(byte[] avroPayload) {
-        try {
-            DatumReader<GenericRecord> reader = new SpecificDatumReader<>(schema);
-            BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(avroPayload, null);
-            GenericRecord record = reader.read(null, decoder);
-
-            return new Student(
-                    record.get("studentName").toString(),
-                    record.get("studentId").toString(),
-                    (int) record.get("age")
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to deserialize Avro message", e);
-        }
     }
 
     private byte[] serializeAvroMessage(Student student) {
