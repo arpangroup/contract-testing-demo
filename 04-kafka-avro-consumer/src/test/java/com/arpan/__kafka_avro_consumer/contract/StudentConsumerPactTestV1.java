@@ -38,10 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @PactTestFor(providerName = "student-provider", providerType = ProviderType.ASYNCH, pactVersion = PactSpecVersion.V3)
 public class StudentConsumerPactTestV1 {
     private static final String AVRO_SCHEMA_PATH = "src/main/resources/avro/student.avsc";
-    private Schema schema;
-
-    @InjectMocks
-    private StudentConsumer studentConsumer;
 
     @Pact(consumer = "student-consumer")
     public MessagePact studentDetailsPact(MessagePactBuilder builder) throws Exception {
