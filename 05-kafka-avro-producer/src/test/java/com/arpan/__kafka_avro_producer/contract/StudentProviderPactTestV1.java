@@ -11,6 +11,7 @@ import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import com.arpan.__kafka_avro_producer.util.AvroUtils;
+import com.arpan.__kafka_avro_producer.utils.AvroUtil;
 import com.arpangroup.model.Student;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
@@ -64,32 +65,28 @@ public class StudentProviderPactTestV1 {
     // The provideStudentMessage() method creates the Avro message, serializes it, and returns the Base64 encoded string.
     // The serializeAvroMessage() method serializes the Student object to Avro binary format.
     @PactVerifyProvider("a student contract in Avro format")
-    public String provideStudentMessage() {
-        // Create the expected Avro message
-        Student student = new Student("John Doe", "S12345", 30);
-        byte[] avroMessage = serializeAvroMessage(student);
-
-        // Return the Base64 encoded message as expected in the contract
+    public String provideStudentMessage() throws IOException {
+        byte[] avroMessage = AvroUtil.getSampleAvroMessage(AVRO_SCHEMA_PATH);
         return Base64.getEncoder().encodeToString(avroMessage);
     }
 
-    private byte[] serializeAvroMessage(Student student) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    private byte[] getSampleAvroMessage() {
+        try {
+            GenericRecord record = new GenericData.Record(schema);
+            record.put("studentName", "John Doe");
+            record.put("studentId", "S12345");
+            record.put("age", 30);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             DatumWriter<GenericRecord> writer = new SpecificDatumWriter<>(schema);
             BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(outputStream, null);
-
-            // Create a GenericRecord for serialization
-            GenericRecord record = new GenericData.Record(schema);
-            record.put("studentName", student.getStudentName());
-            record.put("studentId", student.getStudentId());
-            record.put("age", student.getAge());
 
             writer.write(record, encoder);
             encoder.flush();
 
-            return outputStream.toByteArray();
+            return Base64.getEncoder().encode(outputStream.toByteArray());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize Avro message", e);
+            throw new RuntimeException("Failed to create Avro message", e);
         }
     }
 
