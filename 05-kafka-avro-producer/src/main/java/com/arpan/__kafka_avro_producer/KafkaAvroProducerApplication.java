@@ -1,13 +1,13 @@
-package com.arpan.__kafka_avro_consumer;
+package com.arpan.__kafka_avro_producer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class KafkaAvroProducerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(KafkaAvroProducerApplication.class, args);
 	}
 
 }

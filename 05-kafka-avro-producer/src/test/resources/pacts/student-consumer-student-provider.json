@@ -1,0 +1,30 @@
+{
+  "consumer": {
+    "name": "student-consumer"
+  },
+  "messages": [
+    {
+      "contents": {
+        "age": 30,
+        "studentId": "S12345",
+        "studentName": "John Doe"
+      },
+      "description": "a student contract",
+      "metadata": {
+        "contentType": "application/json"
+      }
+    }
+  ],
+  "metadata": {
+    "contentType": "application/json",
+    "pact-jvm": {
+      "version": "4.6.5"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "student-provider"
+  }
+}
