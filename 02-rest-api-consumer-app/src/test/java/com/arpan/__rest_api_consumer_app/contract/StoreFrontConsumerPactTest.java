@@ -1,6 +1,7 @@
 package com.arpan.__rest_api_consumer_app.contract;
 
 import au.com.dius.pact.consumer.MockServer;
+import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
@@ -46,8 +47,13 @@ public class StoreFrontConsumerPactTest {
                 .willRespondWith()
                     .status(200)
                     //.body(LambdaDsl.newJsonBody((body) -> body.stringType("productId", "P123").stringType("productName", "Samsung Mobile").integerType("", 15000)).build())
+                    .body(new PactDslJsonBody()
+                            .stringType("productId", "P123")
+                            .stringType("productName", "Samsung Mobile")
+                            .integerType("price", 15000)
+                    )
                     //.body(jsonStr)
-                    .body(jsonBody, "application/json")
+                    //.body(jsonBody, "application/json")
                 .toPact(V4Pact.class);
     }
 
