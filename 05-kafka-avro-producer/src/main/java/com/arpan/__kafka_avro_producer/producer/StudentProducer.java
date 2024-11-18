@@ -13,7 +13,7 @@ public class StudentProducer {
     @Autowired
     private KafkaTemplate<String, Student> kafkaTemplate;
 
-    @Value("${kafka.topic.name}")
+    @Value("${kafka.topic.name:kafka.topic.name}")
     private String topicName;
 
     public void sendMessage(Student student) {
