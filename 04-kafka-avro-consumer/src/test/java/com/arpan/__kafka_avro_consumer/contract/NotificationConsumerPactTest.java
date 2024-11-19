@@ -34,6 +34,16 @@ public class NotificationConsumerPactTest {
                 .expectsToReceive("a notification event in Avro format")
                 .withMetadata(Map.of("contentType", "text/plain", "encoding", "base64"))
                 .withContent(Base64.getEncoder().encodeToString(avroMessage))
+                /*.withMatchingRules(rules -> rules
+                        .jsonPath("$.requestContext.notificationIdentifier", MatchingRuleType.Type())
+                        .jsonPath("$.requestContext.eventName", MatchingRuleType.Type())
+                        .jsonPath("$.requestContext.recipientList[*].recipientIdentifier", MatchingRuleType.Type())
+                )
+                .matchingRumes(rules -> rules
+                        .jsonPath("$.requestContext.notificationIdentifier", MatchingRuleType.Type())
+                        .jsonPath("$.requestContext.eventName", MatchingRuleType.Type())
+                        .jsonPath("$.requestContext.recipientList[*].recipientIdentifier", MatchingRuleType.Type())
+                )*/
                 .toPact();
     }
 
