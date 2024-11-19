@@ -1,0 +1,26 @@
+{
+  "requestContext": {
+    "notificationIdentifier": "123",
+    "eventName": "SampleEvent",
+    "sourceName": "SampleSource",
+    "recipientList": [
+      {
+        "recipientIdentifier": "recipient1",
+        "deliveryMap": {
+          "email": {
+            "emailAddressText": "example@example.com"
+          },
+          "sms": {
+            "smsIdentifier": "1234567",
+            "phoneNumber": "9876543210"
+          }
+        },
+        "prefferedLanguage": "ENG"
+      }
+    ]
+  },
+  "requestAttributeMap": {
+    "attributeKey1": "attributeValue1",
+    "attributeKey2": "attributeValue2"
+  }
+}

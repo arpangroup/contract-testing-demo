@@ -1,0 +1,71 @@
+{
+  "type": "record",
+  "name": "NotificationRequest",
+  "fields": [
+    {
+      "name": "requestContext",
+      "type": {
+        "type": "record",
+        "name": "RequestContext",
+        "fields": [
+          {"name": "notificationIdentifier", "type": "string"},
+          {"name": "eventName", "type": "string"},
+          {"name": "sourceName", "type": "string"},
+          {
+            "name": "recipientList",
+            "type": {
+              "type": "array",
+              "items": {
+                "type": "record",
+                "name": "Recipient",
+                "fields": [
+                  {"name": "recipientIdentifier", "type": "string"},
+                  {
+                    "name": "deliveryMap",
+                    "type": {
+                      "type": "record",
+                      "name": "DeliveryMap",
+                      "fields": [
+                        {
+                          "name": "email",
+                          "type": {
+                            "type": "record",
+                            "name": "EmailDelivery",
+                            "fields": [
+                              {"name": "emailAddressText", "type": "string"}
+                            ]
+                          },
+                          "default": null
+                        },
+                        {
+                          "name": "sms",
+                          "type": {
+                            "type": "record",
+                            "name": "SmsDelivery",
+                            "fields": [
+                              {"name": "smsIdentifier", "type": "string"},
+                              {"name": "phoneNumber", "type": "string"}
+                            ]
+                          },
+                          "default": null
+                        }
+                      ]
+                    }
+                  },
+                  {"name": "prefferedLanguage", "type": "string"}
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "requestAttributeMap",
+      "type": {
+        "type": "map",
+        "values": "string"
+      }
+    }
+  ]
+}
