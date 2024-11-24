@@ -1,0 +1,15 @@
+{
+  "namespace": "com.arpangroup.model",
+  "type": "record",
+  "name": "Student",
+  "fields": [
+    {
+      "name": "studentId",
+      "type": "int"
+    },
+    {
+      "name": "studentName",
+      "type": "string"
+    }
+  ]
+}

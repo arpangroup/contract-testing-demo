@@ -34,8 +34,8 @@ public class StoreFrontConsumerPactTest {
 
 
         return builder
-                .given("A product with ID P123 is available in the inventory")
-                    .uponReceiving("A GET request to fetch the details of product ID P123")
+                .given("A student with ID P123 is available in the inventory")
+                    .uponReceiving("A GET request to fetch the details of student ID P123")
                     .method("GET")
                     //.headers("Accept", "application/json")
                     //.headers(Map.of("Content-Type", "application/json"))
@@ -108,16 +108,16 @@ public class InventoryProviderPactTest {
         context.verifyInteraction();
     }
 
-    @State("A product with ID P123 is available in the inventory")
+    @State("A student with ID P123 is available in the inventory")
     public void productP123IsAvailable() {
-        System.out.println("Setting up provider state: A product with ID P123 is available in the inventory");
+        System.out.println("Setting up provider state: A student with ID P123 is available in the inventory");
     }
 
-//    @PactVerifyProvider("A GET request to fetch the details of product ID P123")
+//    @PactVerifyProvider("A GET request to fetch the details of student ID P123")
 //    public String getProductDetails() throws JsonProcessingException {
-//        ProductResponse product = new ProductResponse("P123", "Samsung Mobile", 15000);
-//        product.setActive(true);
-//        return new ObjectMapper().writeValueAsString(product); // Ensure the provider returns the full response with 'isActive'
+//        ProductResponse student = new ProductResponse("P123", "Samsung Mobile", 15000);
+//        student.setActive(true);
+//        return new ObjectMapper().writeValueAsString(student); // Ensure the provider returns the full response with 'isActive'
 //    }
 
 }
