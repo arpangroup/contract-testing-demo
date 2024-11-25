@@ -35,7 +35,7 @@ public class AvroUtil {
     }
 
     /**
-     * Serializes an Avro object into JSON.
+     * Serializes an Avro object into JSON (use Avro's JSONEncoder).
      *
      * @param avroObject The Avro object to serialize.
      * @param schema     The Avro schema of the object.
