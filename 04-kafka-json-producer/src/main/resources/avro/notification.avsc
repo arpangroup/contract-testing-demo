@@ -1,0 +1,83 @@
+{
+  "type": "record",
+  "name": "NotificationRequest",
+  "namespace": "com.example",
+  "fields": [
+    {
+      "name": "requestContext",
+      "type": {
+        "type": "record",
+        "name": "RequestContext",
+        "fields": [
+          { "name": "notificationIdentifier", "type": "string" },
+          { "name": "eventName", "type": "string" },
+          { "name": "sourceName", "type": "string" },
+          { "name": "brandName", "type": "string" },
+          { "name": "sideCode", "type": "string" },
+          { "name": "productCode", "type": "string" },
+          { "name": "subProductCode", "type": "string" },
+          {
+            "name": "recipientList",
+            "type": {
+              "type": "array",
+              "items": {
+                "type": "record",
+                "name": "Recipient",
+                "fields": [
+                  { "name": "recipientIdentifier", "type": "string" },
+                  {
+                    "name": "deliveryMap",
+                    "type": {
+                      "type": "record",
+                      "name": "DeliveryMap",
+                      "fields": [
+                        {
+                          "name": "email",
+                          "type": [
+                            "null",
+                            {
+                              "type": "record",
+                              "name": "Email",
+                              "fields": [
+                                { "name": "emailAddressText", "type": "string" }
+                              ]
+                            }
+                          ],
+                          "default": null
+                        },
+                        {
+                          "name": "sms",
+                          "type": [
+                            "null",
+                            {
+                              "type": "record",
+                              "name": "SMS",
+                              "fields": [
+                                { "name": "smsIdentifier", "type": "string" },
+                                { "name": "phoneNumber", "type": "string" }
+                              ]
+                            }
+                          ],
+                          "default": null
+                        }
+                      ]
+                    }
+                  },
+                  { "name": "prefferedLanguage", "type": "string" }
+                ]
+              }
+            }
+          },
+          { "name": "recipientTypeName", "type": "string" }
+        ]
+      }
+    },
+    {
+      "name": "requestAttributeMap",
+      "type": {
+        "type": "map",
+        "values": "string"
+      }
+    }
+  ]
+}
