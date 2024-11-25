@@ -71,27 +71,4 @@ public class KafkaProducerContractTest {
             throw new RuntimeException("Failed to serialize Student object", e);
         }
     }
-
-    /*@PactVerifyProvider("valid Student message from kafka producer") // description
-    @State("given a valid Student message from kafka producer")
-    public MessageAndMetadata verifyStudentEventMessage() {
-        try {
-            Student student = new Student(1, "tom");
-            Map<String, Object> metaData = Map.of("contentType", "application/json", "eventSource", "kafkaProducer");
-
-            // Creating an incorrect object
-            Map<String, Object> incorrectStudent = Map.of(
-                    "studentId", "invalid_id", // Incorrect type: should be an integer
-                    "studentName", 123 // Incorrect type: should be a string
-            );
-
-            // Serializing the incorrect object into JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            byte[] contentBytes = objectMapper.writeValueAsBytes(incorrectStudent);
-
-            return new MessageAndMetadata(contentBytes, metaData);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize Student object", e);
-        }
-    }*/
 }
