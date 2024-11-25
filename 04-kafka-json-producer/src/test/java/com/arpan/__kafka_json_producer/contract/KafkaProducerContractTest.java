@@ -10,13 +10,20 @@ import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
+import com.arpan.__kafka_json_producer.util.AvroUtil;
 import com.arpangroup.model.Student;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.avro.io.BinaryEncoder;
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.io.JsonEncoder;
+import org.apache.avro.specific.SpecificDatumWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
 @ExtendWith(SpringExtension.class)
@@ -49,13 +56,17 @@ public class KafkaProducerContractTest {
     @State("given a valid Student message from kafka producer")
     public MessageAndMetadata verifyStudentEventMessage() {
         try {
-            Student student = new Student(1, "tom");
-            Map<String, Object> metaData = Map.of("contentType", "application/json", "eventSource", "kafkaProducer");
+            Student student = Student.newBuilder()
+                    .setStudentId(1)
+                    .setStudentName("John Doe")
+                    .build();
+            Map<String, Object> metaData = Map.of("contentType", "application/json");
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            byte[] studentBytes = objectMapper.writeValueAsBytes(student);
+            // Serialize Avro object to JSON
+            byte[] jsonBytes = AvroUtil.serializeToJson(student, Student.getClassSchema());
+            System.out.println("JSON_BYTES: " + new String(jsonBytes));
 
-            return new MessageAndMetadata(studentBytes, metaData);
+            return new MessageAndMetadata(jsonBytes, metaData);
         } catch (Exception e) {
             throw new RuntimeException("Failed to serialize Student object", e);
         }

@@ -7,12 +7,11 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.io.DatumReader;
-import org.apache.avro.io.DatumWriter;
-import org.apache.avro.io.JsonEncoder;
-import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.io.*;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.FileReader;
+import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.avro.specific.SpecificRecord;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.ByteArrayOutputStream;
@@ -33,6 +32,26 @@ public class AvroUtil {
 
         // Return the resulting JSON as a string
         return byteArrayOutputStream.toString("UTF-8");
+    }
+
+    /**
+     * Serializes an Avro object into JSON.
+     *
+     * @param avroObject The Avro object to serialize.
+     * @param schema     The Avro schema of the object.
+     * @return JSON representation of the Avro object as a byte array.
+     * @throws RuntimeException if serialization fails.
+     */
+    public static <T extends SpecificRecord> byte[] serializeToJson(T avroObject, Schema schema) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            DatumWriter<T> writer = new SpecificDatumWriter<>(schema);
+            Encoder encoder = EncoderFactory.get().jsonEncoder(schema, outputStream);
+            writer.write(avroObject, encoder);
+            encoder.flush();
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize Avro object to JSON", e);
+        }
     }
 
     public static Schema studentSchema() throws IOException {
