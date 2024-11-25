@@ -48,7 +48,7 @@ fi
 
 
 ## Generate IDA token
-ida_token="pkqBnpXX3u4o5wErioDeXA"
+ida_token=$password
 # ida_token=$(curl -s -k https://google.com/oauth2/token -d "grant_type=password&client_id=PC-123&username=johndoe&password=$password&resource=demo" | jq ".access_token" | sed 's/"//g"')
 # if [ "ida_token" = "null" ]
 # then
