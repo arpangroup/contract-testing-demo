@@ -2,6 +2,7 @@ package com.arpan.__kafka_json_producer.util;
 
 import com.arpangroup.model.Student;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -17,6 +18,8 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class AvroUtil {
     private static final String AVRO_STUDENT_SCHEMA_LOCATION = "avro/student.avsc";
@@ -60,5 +63,44 @@ public class AvroUtil {
         ClassPathResource resource = new ClassPathResource(AVRO_STUDENT_SCHEMA_LOCATION);
         Schema schema = new Schema.Parser().parse(resource.getInputStream());
         return schema;
+    }
+
+    /**
+     * Transforms the serialized JSON to match the Pact contract's expected structure.
+     *
+     * @param originalJson The original serialized JSON.
+     * @return The transformed JSON string.
+     */
+    public static String transformJson(String originalJson) {
+        try {
+            // Parse the JSON into a Map
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> jsonMap = objectMapper.readValue(originalJson, new TypeReference<>() {});
+
+            // Navigate and transform the `deliveryMap` fields
+            List<Map<String, Object>> recipientList =
+                    (List<Map<String, Object>>) ((Map<String, Object>) jsonMap.get("requestContext")).get("recipientList");
+
+            for (Map<String, Object> recipient : recipientList) {
+                Map<String, Object> deliveryMap = (Map<String, Object>) recipient.get("deliveryMap");
+
+                // Flatten "com.example.Email" to "email"
+                if (deliveryMap.containsKey("com.example.Email")) {
+                    Map<String, Object> emailMap = (Map<String, Object>) deliveryMap.remove("com.example.Email");
+                    deliveryMap.put("email", emailMap);
+                }
+
+                // Flatten "com.example.SMS" to "sms"
+                if (deliveryMap.containsKey("com.example.SMS")) {
+                    Map<String, Object> smsMap = (Map<String, Object>) deliveryMap.remove("com.example.SMS");
+                    deliveryMap.put("sms", smsMap);
+                }
+            }
+
+            // Convert the updated map back to a JSON string
+            return objectMapper.writeValueAsString(jsonMap);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to transform JSON", e);
+        }
     }
 }
