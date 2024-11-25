@@ -1,0 +1,60 @@
+{
+  "consumer": {
+    "name": "kafka-student-consumer"
+  },
+  "interactions": [
+    {
+      "contents": {
+        "content": {
+          "studentId": 1,
+          "studentName": "John Doe"
+        },
+        "contentType": "application/json",
+        "encoded": false
+      },
+      "description": "valid Student message from kafka producer",
+      "key": "cc5011a4",
+      "matchingRules": {
+        "body": {
+          "$.studentId": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "integer"
+              }
+            ]
+          },
+          "$.studentName": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          }
+        }
+      },
+      "metadata": {
+        "contentType": "application/json"
+      },
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "given a valid Student message from kafka producer"
+        }
+      ],
+      "type": "Asynchronous/Messages"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.6.5"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "kafka-student-provider"
+  }
+}

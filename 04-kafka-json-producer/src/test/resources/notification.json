@@ -1,0 +1,173 @@
+{
+  "consumer": {
+    "name": "kafka-notification-consumer"
+  },
+  "interactions": [
+    {
+      "contents": {
+        "content": {
+          "requestAttributeMap": {
+            "attributeKey1": "attributeValue1",
+            "attributeKey2": "attributeValue2"
+          },
+          "requestContext": {
+            "eventName": "SampleEvent",
+            "notificationIdentifier": "123",
+            "productCode": "SampleProductCode",
+            "recipientList": [
+              {
+                "deliveryMap": {
+                  "email": {
+                    "emailAddressText": "example@example.com"
+                  },
+                  "sms": {
+                    "phoneNumber": "9876543210",
+                    "smsIdentifier": "1234567"
+                  }
+                },
+                "prefferedLanguage": "ENG",
+                "recipientIdentifier": "recipient1"
+              }
+            ],
+            "recipientTypeName": "ECI",
+            "sourceName": "SampleSource",
+            "subProductCode": "SampleSubProductCode"
+          }
+        },
+        "contentType": "application/json",
+        "encoded": false
+      },
+      "description": "valid Notification message from kafka producer",
+      "key": "",
+      "matchingRules": {
+        "body": {
+          "$.requestAttributeMap.attributeKey1": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestAttributeMap.attributeKey2": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.eventName": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.notificationIdentifier": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.productCode": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.recipientList[0].deliveryMap.email.emailAddressText": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.recipientList[0].deliveryMap.sms.phoneNumber": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.recipientList[0].deliveryMap.sms.smsIdentifier": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.recipientList[0].prefferedLanguage": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.recipientList[0].recipientIdentifier": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.recipientTypeName": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.sourceName": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.requestContext.subProductCode": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          }
+        }
+      },
+      "metadata": {
+        "contentType": "application/json"
+      },
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "given a valid Notification message from kafka producer"
+        }
+      ],
+      "type": "Asynchronous/Messages"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.6.5"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "kafka-notification-provider"
+  }
+}
