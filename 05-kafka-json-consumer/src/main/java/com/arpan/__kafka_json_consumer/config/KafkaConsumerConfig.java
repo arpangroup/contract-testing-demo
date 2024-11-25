@@ -1,5 +1,6 @@
 package com.arpan.__kafka_json_consumer.config;
 
+import com.arpangroup.model.Student;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, KafkaAvroDeserializer> consumerAvroFactory() {
+    public ConsumerFactory<String, Student> consumerAvroFactory() {
         // Creating a Map of string-object pairs
         Map<String, Object> config = new HashMap<>();
 
@@ -35,7 +36,8 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
+        //config.put("specific.avro.reader", "true"); // Important for specific deserialization ==> specific.avro.reader=true
 
         return new DefaultKafkaConsumerFactory<>(config);
     }
@@ -43,7 +45,7 @@ public class KafkaConsumerConfig {
 
     @Bean(name = "myAvroConsumerFactory")
     public ConcurrentKafkaListenerContainerFactory myAvroConsumerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, KafkaAvroDeserializer> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, Student> factory = new ConcurrentKafkaListenerContainerFactory<>();
         // enable below ContainerProperties when you want to acknowledge msg manually
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.setConsumerFactory(consumerAvroFactory());
