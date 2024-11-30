@@ -77,9 +77,8 @@
 				<artifactId>maven</artifactId>
 				<version>4.1.11</version>
 				<configuration>
-					<pactBrokerUrl>https://localhost:9292</pactBrokerUrl>
-					<!--<pactBrokerUrl>https://arpangroup.pactflow.io/</pactBrokerUrl>
-                    <pactBrokerToken>0CSDSGVBGWMSDSDBCG</pactBrokerToken>-->
+					<pactBrokerUrl>https://arpangroup.pactflow.io/</pactBrokerUrl>
+                    <pactBrokerToken>pkqBnpXX3u4o5wErioDeXA</pactBrokerToken>
 				</configuration>
 			</plugin>
 

@@ -1,19 +1,36 @@
 package com.arpan.__rest_api_provider_app.controller;
 
-import com.arpan.__rest_api_provider_app.dto.ProductResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.arpan.__rest_api_provider_app.model.Product;
+import com.arpan.__rest_api_provider_app.exception.BadRequestException;
+import com.arpan.__rest_api_provider_app.model.ProductCreateRequestDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/products/")
+@CrossOrigin("*")
+@RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductController {
+    private final ProductRepository repository;
+
+    @GetMapping
+    public List<Product> getAllProducts() {
+        return repository.findAll();
+    }
 
     @GetMapping("/{productId}")
-    public ProductResponse getProductDetails(@PathVariable String productId) {
-        ProductResponse productResponse = new ProductResponse("P123", "Samsung Mobile", 15000);
-        productResponse.setActive(true);
-        return productResponse;
+    public Product getProductDetails(@PathVariable String productId) {
+        if (!StringUtils.hasText(productId)) throw new BadRequestException();
+        return repository.findById(productId);
+    }
+
+    @PostMapping
+    public Product createNewProduct(ProductCreateRequestDto requestDto) {
+        Product product = new Product(null, requestDto.getProductName(), requestDto.getPrice());
+        return repository.save(product);
     }
 }

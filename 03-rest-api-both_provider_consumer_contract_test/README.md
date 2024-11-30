@@ -60,11 +60,11 @@ public class StoreFrontConsumerPactTest {
         // instead of the actual external endpoint URL like (http://myapi.com/api/products/P123)
         // The purpose of a Pact consumer test is to validate the contract
         // using a simulated server rather than making real API
-        ResponseEntity<ProductDto> productResponse = new RestTemplate().getForEntity(mockServer.getUrl() + "/api/products/P123", ProductDto.class);
-        ProductDto actualProduct = productResponse.getBody();
+        ResponseEntity<ProductDto> product = new RestTemplate().getForEntity(mockServer.getUrl() + "/api/products/P123", ProductDto.class);
+        ProductDto actualProduct = product.getBody();
 
         // Step3: Validate the response
-        assertThat(productResponse.getStatusCodeValue()).isEqualTo(200);
+        assertThat(product.getStatusCodeValue()).isEqualTo(200);
         assertThat(actualProduct).usingRecursiveComparison().isEqualTo(expectedProduct);
     }
 }

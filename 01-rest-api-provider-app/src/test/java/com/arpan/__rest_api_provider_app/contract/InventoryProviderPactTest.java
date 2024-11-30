@@ -1,27 +1,15 @@
 package com.arpan.__rest_api_provider_app.contract;
 
-import au.com.dius.pact.provider.MessageAndMetadata;
-import au.com.dius.pact.provider.PactVerifyProvider;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
-import au.com.dius.pact.provider.junit5.MessageTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
-import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
-import au.com.dius.pact.provider.junitsupport.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
-import au.com.dius.pact.provider.junitsupport.loader.PactUrl;
-import com.arpan.__rest_api_provider_app.dto.ProductResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 @Provider("inventory-provider")
 //@PactBroker(url = "http://localhost:9292", authentication = @PactBrokerAuth(token = "", username = "john@doe.com", password = "pkqBnpXX3u4o5wErioDeXA"))

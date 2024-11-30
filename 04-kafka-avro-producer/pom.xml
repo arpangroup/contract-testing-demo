@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.arpan</groupId>
-	<artifactId>05-kafka-json-consumer</artifactId>
+	<artifactId>04-kafka-avro-producer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>05-kafka-json-consumer</name>
+	<name>04-kafka-json-producer</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -30,6 +30,7 @@
 		<java.version>21</java.version>
 	</properties>
 
+
 	<repositories>
 		<repository>
 			<id>confluent</id>
@@ -44,6 +45,7 @@
 		</dependency>
 
 
+
 		<!-- kafka dependencies -->
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -54,7 +56,7 @@
 		<dependency>
 			<groupId>org.apache.avro</groupId>
 			<artifactId>avro</artifactId>
-			<version>1.11.1</version>
+			<version>1.11.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.confluent</groupId>
@@ -62,9 +64,9 @@
 			<version>7.5.1</version>
 		</dependency>
 
-		<!-- Pact Consumer Dependency -->
+		<!-- Pact Provider Dependency -->
 		<dependency>
-			<groupId>au.com.dius.pact.consumer</groupId>
+			<groupId>au.com.dius.pact.provider</groupId>
 			<artifactId>junit5</artifactId>
 			<version>4.6.5</version>
 			<scope>test</scope>
@@ -99,6 +101,7 @@
 			</plugin>
 
 
+
 			<plugin>
 				<groupId>org.apache.avro</groupId>
 				<artifactId>avro-maven-plugin</artifactId>
@@ -125,7 +128,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 
 		</plugins>
 	</build>
