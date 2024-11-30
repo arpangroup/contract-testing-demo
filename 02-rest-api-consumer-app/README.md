@@ -64,11 +64,8 @@ curl GET http://localhost:8080/api/products/P101 | python -m json.tool
 ## Step2. Consumer Test (StoreFrontConsumerPactTest)
 Now in our example (`StoreFrontConsumerPactTest`) we will consume only  `{productId, productName, price}`. We will ignore other fields during `PACT` creation.
 ````java
-/* https://docs.pact.io/implementation_guides/jvm/provider/junit5spring */
-/* https://docs.pact.io/implementation_guides/jvm/consumer/junit5 */
-@ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(providerName = "inventory-provider")
-//@PactTestFor(providerName = "student-provider", providerType = ProviderType.ASYNCH, pactVersion = PactSpecVersion.V4, port = 8081)
+@PactConsumerTest
+//@PactTestFor(providerName = "inventory-provider", pactVersion = PactSpecVersion.V4)
 class StoreFrontConsumerPactTest {
 
     @Pact(consumer = "ConsumerService")
@@ -79,54 +76,71 @@ class StoreFrontConsumerPactTest {
             .stringType("studentId", "S12345")
             .integerType("age", 20);*/
         
-        // or, define the expected response from a json file (suitable for big json response)
-        File file = ResourceUtils.getFile("src/test/resources/UserResponse200.json");
-        String jsonBody = new String(Files.readAllBytes(file.toPath()));       
-        
         // Build the Pact interaction
-        return builder
-              .given("GET /api/getUserDetails")
-                .uponReceiving("A GET request for user details")
-                .method("GET")
-                //.headers("Accept", "application/json")
-                //.headers(Map.of("Content-Type", "application/json"))
-                .path("/api/getUserDetails")
-              .willRespondWith()
-                .status(200)
-                //.body(LambdaDsl.newJsonBody((body) -> body.stringType("name", "Sample Data")).build())
-                //.body(jsonBody)
-                .body(jsonBody, "application/json")
-                .toPact(V4Pact.class);
+
+       return builder
+         // First interaction
+            .given("State of a product with ID P101 is available in the inventory") // State
+            .uponReceiving("StoreFrontConsumerPactTest interaction to fetch the details of product by ID P101") // Interaction
+            .method("GET")
+            .path("/api/products/P101")
+            //.headers("Accept", "application/json")
+            //.headers(Map.of("Content-Type", "application/json"))
+         .willRespondWith()
+            .status(200)
+            //.matchHeader("Location", "http(s)?://\\w+:\\d+//some-service/user/\\w{36}$")
+            //.body(LambdaDsl.newJsonBody((body) -> body.stringType("productId", "P123").stringType("productName", "Samsung Mobile").integerType("", 15000)).build())
+            //.body(jsonStr)
+            //.body(jsonBody, "application/json")
+            .body(new PactDslJsonBody()
+                    .stringType("productId", "P101")
+                    .stringType("productName", "Samsung Mobile")
+                    .integerType("price", 15000)
+            )
+         // Second interaction
+         .given("State of a newly create order") //State
+         .uponReceiving("StoreFrontConsumerPactTest interaction to create a new product") // Interaction
+            .method("POST")
+            .path("/api/products")
+            .matchHeader(CONTENT_TYPE, APPLICATION_JSON, APPLICATION_JSON_CHARSET_UTF_8)
+            .body(new ObjectMapper().writeValueAsString(productCreateRequest))
+         .willRespondWith()
+            .status(201)
+            .headers(Map.of("Content-Type", "application/json"))
+            .body(new ObjectMapper().writeValueAsString(expectedProductCreateResponse))
+         .toPact(V4Pact.class);
     }
 
-    @Test
-    @PactTestFor(providerName = "createStudentDetailsPact")
-    void testProductDetailsPact(MockServer mockServer) throws Exception {
-        // Step1: define a expectedJson in string format
-        // String expectedJson = "{\"studentId\":\"S123\", \"studentName\":\"tom\", \"age\":30}";
-      
-        // Step1.1: or define expectedJson like:
-        StudentResponse expectedStudent = new StudentResponse("S123", "tom", 30);
-      
-        
-        // Step2: define the actualJson response using an external endpoint
-        /*RestTemplate restTemplate = new RestTemplate();        
-        ResponseEntity<String> actualJson = restTemplate.getForEntity("http://localhost:8080/api/data", String.class);*/
+   @Test
+   @PactTestFor(pactMethod = "createProductDetailsPact1", pactVersion = PactSpecVersion.V4) // either on Test class, or on the Test method
+   void testProductDetailsPact__for__StoreFront(MockServer mockServer) throws Exception {
+      // Step1.1: or define expectedJson like:
+      SimpleProductDto expectedProduct = new SimpleProductDto("P101", "Samsung Mobile", 15000);
 
-        // Step2.1: or get response by calling the controller from the same application (when the provider logic is written on same application)
-        /*studentController.setBaseUrl(mockServer.getUrl() + "/api/getStudentDetails");
-        StudentResponse studentResponse = studentController.getStudentDetails("123");
-        String actualJson = new ObjectMapper().writeValueAsString(studentResponse);*/
+      // Step2: define the actualJson response
+      // In a consumer test, you need to use the mock server URL (provided by Pact)
+      // instead of the actual external endpoint URL like (http://myapi.com/api/products/P123)
+      // The purpose of a Pact consumer test is to validate the contract
+      // using a simulated server rather than making real API
+      ResponseEntity<SimpleProductDto> productResponse = new RestTemplate().getForEntity(mockServer.getUrl() + "/api/products/P101", SimpleProductDto.class);
+      SimpleProductDto actualProduct = productResponse.getBody();
 
-        // Step2.2: or get response by calling the controller without Autowiring the Controller class
-        ResponseEntity<StudentResponse> studentResponse = restTemplate.getForEntity(mockServer.getUrl() + "/api/getUserDetails", StudentResponse.class);
-        StudentResponse expectedStudent = studentResponse.getBody();              
-      
-        
-        // Step3: Validate the response
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).contains("Sample Data");
-    }
+      // Step3: Validate the response
+      assertThat(productResponse.getStatusCode().is2xxSuccessful()).isTrue();
+      assertThat(productResponse.getStatusCode().value()).isEqualTo(200);
+
+      // validate Headers
+      assertThat(productResponse.getHeaders().getContentType().toString()).contains("application/json");
+
+      // validate ResponseBody
+      assertThat(actualProduct).usingRecursiveComparison().isEqualTo(expectedProduct);
+
+
+      // Simulating the POST request & Validate the response
+      ResponseEntity<SimpleProductDto> postResponse = new RestTemplate().postForEntity(mockServer.getUrl() + "/api/products", productCreateRequest, SimpleProductDto.class);
+      assertThat(postResponse.getStatusCode().value()).isEqualTo(201);
+      assertThat(postResponse.getBody()).usingRecursiveComparison().isEqualTo(expectedProductCreateResponse);
+   }
 }
 ````
 

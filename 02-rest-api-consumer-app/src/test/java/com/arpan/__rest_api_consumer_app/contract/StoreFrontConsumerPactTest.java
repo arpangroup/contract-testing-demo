@@ -37,6 +37,12 @@ public class StoreFrontConsumerPactTest {
 
     @Pact(provider = "inventory-provider", consumer = "storefront-consumer")
     public V4Pact createProductDetailsPact1(PactDslWithProvider builder) throws IOException {
+        // Define the expected response body using PactDslJsonBody
+        /*PactDslJsonBody jsonBody = new PactDslJsonBody()
+                .stringType("studentName", "John Doe")
+                .stringType("studentId", "S12345")
+                .integerType("age", 20);*/
+
         // File file = ResourceUtils.getFile("src/test/resources/ProductDetailsResponse200.json");
         // String jsonBody = new String(Files.readAllBytes(file.toPath()));
 
@@ -77,16 +83,6 @@ public class StoreFrontConsumerPactTest {
     @Test
     @PactTestFor(pactMethod = "createProductDetailsPact1", pactVersion = PactSpecVersion.V4) // either on Test class, or on the Test method
     void testProductDetailsPact__for__StoreFront(MockServer mockServer) throws Exception {
-        /*def http = new SimpleHttp(mockServer.getUrl());
-        def response = http.post('/some-service/users', JsonOutput.toJson(user()), 'application/json');
-        assert response.statusCode == 201
-        assert response.headers['location'].first().contains(SOME_SERVICE_USER)
-
-        response = http.get(SOME_SERVICE_USER + EXPECTED_USER_ID)
-        assert response.statusCode == 200*/
-
-
-
         // Step1.1: or define expectedJson like:
         SimpleProductDto expectedProduct = new SimpleProductDto("P101", "Samsung Mobile", 15000);
 
