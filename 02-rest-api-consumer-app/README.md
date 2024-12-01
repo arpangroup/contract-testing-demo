@@ -64,11 +64,12 @@ curl GET http://localhost:8080/api/products/P101 | python -m json.tool
 ## Step2. Consumer Test (StoreFrontConsumerPactTest)
 Now in our example (`StoreFrontConsumerPactTest`) we will consume only  `{productId, productName, price}`. We will ignore other fields during `PACT` creation.
 ````java
-@PactConsumerTest
-//@PactTestFor(providerName = "inventory-provider", pactVersion = PactSpecVersion.V4)
+@PactConsumerTest // Step1
+//@ExtendWith(PactConsumerTestExt.class) // Step1-alternative
+//@PactTestFor(providerName = "inventory-provider", pactVersion = V4) // Step3-class level alternative when there is only one consumer test
 class StoreFrontConsumerPactTest {
 
-    @Pact(consumer = "ConsumerService")
+    @Pact(consumer = "ConsumerService") // Step2
     public V4Pact createStudentDetailsPact(PactDslWithProvider builder) throws Exception{
         // Define the expected response body using PactDslJsonBody
         /*PactDslJsonBody jsonBody = new PactDslJsonBody()
@@ -77,7 +78,6 @@ class StoreFrontConsumerPactTest {
             .integerType("age", 20);*/
         
         // Build the Pact interaction
-
        return builder
          // First interaction
             .given("State of a product with ID P101 is available in the inventory") // State
@@ -112,7 +112,7 @@ class StoreFrontConsumerPactTest {
     }
 
    @Test
-   @PactTestFor(pactMethod = "createProductDetailsPact1", pactVersion = PactSpecVersion.V4) // either on Test class, or on the Test method
+   @PactTestFor(pactMethod = "createProductDetailsPact1", pactVersion = V4) // Step3: either on Test class, or on the Test method
    void testProductDetailsPact__for__StoreFront(MockServer mockServer) throws Exception {
       // Step1.1: or define expectedJson like:
       SimpleProductDto expectedProduct = new SimpleProductDto("P101", "Samsung Mobile", 15000);
@@ -144,24 +144,28 @@ class StoreFrontConsumerPactTest {
 }
 ````
 
-### Explanation:
+### [Usage:](https://docs.pact.io/implementation_guides/jvm/consumer/junit5#usage)
+- Step1: Add the `@PactConsumerTest` or `@ExtendWith(PactConsumerTestExt.class)` extension to the test class
+- Step2: Create a method annotated with `@Pact` that returns the interactions for the test
+- Step3: Link the mock server with the interactions for the test with `@PactTestFor`
+
+
+<details>
+<summary><span style="font-size: 18px; font-weight: bold; color: #5d65ff">Explanation:</span></summary>
+
 1. **@ExtendWith:** ExtendWith is JUnit 5 annotation that is used to register extensions in JUnit tests. It facilitates the Pact features to the test class file to perform the contract testing
 2. **@PactTestFor:** annotation is used to specify the provider against which the interactions defined in the test should be verified. The name below “student-provider” has to be mentioned the same as Provider and this binds the Provider and Consumer. <br/> You can either put this annotation on the test class, or on the test method
-    1. **providerType = ProviderType.ASYNCH:**
-    2. **pactVersion = PactSpecVersion.V4:**
-    3. **port = 8081:** Ensure that the provider service is running on the correct port (80801in your case).
+   1. **providerType = ProviderType.ASYNCH:**
+   2. **pactVersion = PactSpecVersion.V4:**
+   3. **port = 8081:** Ensure that the provider service is running on the correct port (80801in your case).
 3. **V4Pact:** The createPact method returns `V4Pact` (others are `RequestResponsePact`, `RequestResponsePact`, `MessagePact`) as we defined `pactVersion = V4`
 4. **.toPact(V4Pact.class):** This explicitly creates a `V4Pact` instance.
 5. **@Pact:** annotation is used to mark the method that generates a Pact between the consumer and provider
 6. **PactDslWithProvider:** object is automatically injected by Pact and it provides a fluent DSL for constructing a Pact between the consumer and provider.
-    1. Other available Builders are: [PactBuilder](), [MessagePactBuilder]() <br/><br/>
+   1. Other available Builders are: [PactBuilder](), [MessagePactBuilder]() <br/><br/>
 7. **PactTestFor:** It indicates that this test is associated with the interactions defined in the above interactions (or Mock Response)
 8. **MockServer:** object is automatically injected by Pact and it provides the URL where the mock server is running
-    1. **setBaseURL:** Override the host URL so that the API request is redirected to the Pact mock server
-9. ssssas
-10. sasasa
-
-
+   1. **setBaseURL:** Override the host URL so that the API request is redirected to the Pact mock server
 
 
 ### Here is an example of create pact using `PactBuilder`
@@ -188,15 +192,72 @@ public V4Pact createPact(PactBuilder builder) {
 ````java
 @Pact(consumer = "student-consumer")
 public MessagePact studentDetailsPact(MessagePactBuilder builder) throws Exception {
-  File file = ResourceUtils.getFile("src/test/resources/StudentResponse200.json");
-  String content = new String(Files.readAllBytes(file.toPath()));
-  
   return builder
           .expectsToReceive("a student contract")
-          //.withMetadata(Map.of(JSON_CONTENT_TYPE, KEY_CONTENT_TYPE))
+          //.withMetadata(Map.of("Content-Type", "application/json"))
           //.withContent(jsonBody)
           .withContent(content, "application/json")
           .toPact();
 }
+````
+
+
+</details>
+
+
+
+## Step3. Run the test cases:
+````shell
+mvn clean test -Dtest=StoreFrontConsumerPactTest,Test2
+````
+It will generate the pact files in the default directory (target/pacts)
+
+[View the generated storefront-consumer-inventory-provider.json](images/storefront-consumer-inventory-provider.json)
+
+
+## Step4. Publish contracts from consumer [GitHub](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step11#step-11---using-a-pact-broker)
+Add the Pact maven plugin In consumer/pom.xml:
+````xml
+<build>
+  <plugins>
+      ...
+      <plugin>
+          <groupId>au.com.dius.pact.provider</groupId>
+          <artifactId>maven</artifactId>
+          <version>4.1.17</version>
+          <configuration>
+            <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
+            <pactBrokerUsername>pact_workshop</pactBrokerUsername>
+            <pactBrokerPassword>pact_workshop</pactBrokerPassword>
+          </configuration>
+      </plugin>
+  </plugins>
+</build>
+````
+And now we can run:
+````shell
+mvn pact:publish
+or
+./mvnw pact:publish -Dpact.publish.consumer.version=$(git rev-parse HEAD) -Dpact.publish.consumer.branchName=$(git rev-parse --abbrev-ref HEAD)
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
+[INFO] Building product-catalogue 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven:4.1.17:publish (default-cli) @ product-catalogue ---
+Publishing 'ProductCatalogue-ProductService.json' with tags 'prod, test' ... OK
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.745 s
+[INFO] Finished at: 2021-03-01T09:51:29+11:00
+[INFO] ------------------------------------------------------------------------
+````
+
+
+## Step5. Alternatively manually publish the pact file
+Alternatively we can manually publish the pact file using the shell script as below:
+````bash
 ````
 

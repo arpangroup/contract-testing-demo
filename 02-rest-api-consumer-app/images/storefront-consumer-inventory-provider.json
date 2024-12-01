@@ -1,0 +1,161 @@
+{
+  "consumer": {
+    "name": "storefront-consumer"
+  },
+  "interactions": [
+    {
+      "comments": {
+        "testname": "com.arpan.__rest_api_consumer_app.contract.StoreFrontConsumerPactTest.testProductDetailsPact__for__StoreFront(MockServer)",
+        "text": [
+
+        ]
+      },
+      "description": "StoreFrontConsumerPactTest interaction to create a new product",
+      "key": "85afd021",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "State of a newly create order"
+        }
+      ],
+      "request": {
+        "body": {
+          "content": {
+            "price": 500,
+            "productName": "Product1"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json; charset=UTF-8"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json.*"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/products"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "price": 500,
+            "productId": "P1234",
+            "productName": "Product1"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "status": 201
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "comments": {
+        "testname": "com.arpan.__rest_api_consumer_app.contract.StoreFrontConsumerPactTest.testProductDetailsPact__for__StoreFront(MockServer)",
+        "text": [
+
+        ]
+      },
+      "description": "StoreFrontConsumerPactTest interaction to fetch the details of product by ID P101",
+      "key": "1521502e",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "State of a product with ID P101 is available in the inventory"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/api/products/P101"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "price": 15000,
+            "productId": "P101",
+            "productName": "Samsung Mobile"
+          },
+          "contentType": "application/json; charset=UTF-8",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json; charset=UTF-8"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.price": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.productId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.productName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json(;\\s?charset=[\\w\\-]+)?"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.6.5"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "inventory-provider"
+  }
+}
