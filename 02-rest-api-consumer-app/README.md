@@ -215,25 +215,44 @@ It will generate the pact files in the default directory (target/pacts)
 [View the generated storefront-consumer-inventory-provider.json](images/storefront-consumer-inventory-provider.json)
 
 
-## Step4. Publish contracts from consumer [GitHub](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step11#step-11---using-a-pact-broker)
+## Step4. Publish contracts from Consumer [GitHub](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step11#step-11---using-a-pact-broker)
 Add the Pact maven plugin In consumer/pom.xml:
 ````xml
-<build>
-  <plugins>
-      ...
-      <plugin>
-          <groupId>au.com.dius.pact.provider</groupId>
-          <artifactId>maven</artifactId>
-          <version>4.1.17</version>
-          <configuration>
-            <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
-            <pactBrokerUsername>pact_workshop</pactBrokerUsername>
-            <pactBrokerPassword>pact_workshop</pactBrokerPassword>
-          </configuration>
-      </plugin>
-  </plugins>
-</build>
+<!--Optional: Pact Maven Plugin is part of the Pact-JVM Maven Plugin 
+for provider-side Pact testing and publishing Pact files to a Pact Broker-->
+<plugin>
+   <groupId>au.com.dius.pact.provider</groupId>
+   <artifactId>maven</artifactId>
+   <version>4.1.17</version>
+   <executions>
+      <execution>
+         <id>publish-pacts</id>
+         <phase>install</phase> <!-- Bind to the install phase -->
+         <goals>
+            <goal>publish</goal>
+         </goals>
+      </execution>
+   </executions>
+   <configuration>
+      <pactDirectory>target/pacts</pactDirectory>
+      <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
+      <pactBrokerUsername>pact_workshop</pactBrokerUsername>
+      <pactBrokerPassword>pact_workshop</pactBrokerPassword>
+      <pactBrokerToken>${pact.broker.token}</pactBrokerToken>
+      <pactBrokerAuthenticationScheme>Bearer</pactBrokerAuthenticationScheme>
+
+      <projectVersion>V-01</projectVersion>
+      <trimSnapshot>true</trimSnapshot>
+      <skipPactPublish>false</skipPactPublish>
+      <pact.verifier.publishResults>true</pact.verifier.publishResults>
+      <tags>
+         <tag>${git.branch}</tag> <!--first tag also automatically map to BRANCH on Pactflow UI -->
+         <tag>${git.commit.id}</tag>
+      </tags>
+   </configuration>
+</plugin>
 ````
+
 And now we can run:
 ````shell
 mvn pact:publish
@@ -257,10 +276,13 @@ Publishing 'ProductCatalogue-ProductService.json' with tags 'prod, test' ... OK
 [INFO] ------------------------------------------------------------------------
 ````
 
+<img src="images/pactflow.jpg"/>
+
 
 ## Step5. Alternatively manually publish the pact file
 Alternatively we can manually publish the pact file using the shell script as below:
 ````bash
+./scripts/consumer_publish_pact.sh
 ````
 
 <br/>

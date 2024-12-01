@@ -76,6 +76,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- git-commit-id-plugin extract information from the Git -->
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
@@ -94,7 +95,8 @@
 
 
 
-			<!--Optional: Pact Maven Plugin is part of the Pact-JVM Maven Plugin for provider-side Pact testing and publishing Pact files to a Pact Broker-->
+			<!--Optional: Pact Maven Plugin is part of the Pact-JVM Maven Plugin
+			for provider-side Pact testing and publishing Pact files to a Pact Broker-->
 			<plugin>
 				<groupId>au.com.dius.pact.provider</groupId>
 				<artifactId>maven</artifactId>
@@ -122,10 +124,10 @@
 						<!--<tag>${pact.consumer.branch}</tag>-->
 						<tag>${git.branch}</tag> <!-- automatically pull the branchName from git -->
 						<tag>${git.commit.id}</tag>
+						<tag>${git.commit.id.abbrev}</tag>
+						<tag>${git.commit.time}</tag>
+						<tag>${git.build.version}</tag>
 					</tags>
-					<environment>
-						<name>test</name>
-					</environment>
 					<reports>
 						<report>console</report>
 						<report>json</report>
