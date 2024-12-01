@@ -159,11 +159,90 @@ Pact contract testing is created on the **consumer side** because of the **consu
 
 ### Q2. How a provider will verify the Contract if there is thousands of consumer? <br/>Isn't it a headache for provider to verify each consumers contract? 
 ### Q3. What if a particular consumers contract on providers test? How consumer will notify?
+### Q3. How a single provider can verify multiple consumer?
+A single provider can verify contracts for multiple consumers by configuring the Pact framework to load and verify the Pact files from different consumers. Here's how it works:
 
+### 1. Pact Files for Each Consumer
+Each consumer-provider contract is defined in its own Pact file. For instance:
+- storefront-consumer-inventory-provider.json
+- mobile-app-consumer-inventory-provider.json
+
+### 2. Provider Configuration for Multiple Consumers
+#### Option 1: Using a Pact Broker
+If all Pacts are stored in a Pact Broker:
+1. Configure the provider to pull all relevant Pacts using @PactBroker.
+2. Each Pact will be loaded, and the provider will verify each interaction for each consumer
+````java
+@PactBroker(
+    url = "https://your-pact-broker-url",
+    authentication = @PactBrokerAuth(token = "your-broker-token")
+)
+@Provider("inventory-provider")
+public class InventoryProviderPactTest {
+    // Tests will verify all consumer Pacts linked to "inventory-provider" in the broker.
+}
+````
+#### Option 2: Using Pact Folder
+If the Pacts are stored locally:
+1. Use `@PactFolder` to specify a directory containing multiple Pact files
+````java
+@PactFolder("src/test/resources/pacts")
+@Provider("inventory-provider")
+public class InventoryProviderPactTest {
+    // Tests will verify all Pacts in the specified folder.
+}
+````
+
+#### Option 3: Using Pact URLs
+You can specify multiple Pact URLs explicitly:
+````java
+@PactUrl(urls = {
+    "file:src/test/resources/pacts/storefront-consumer-inventory-provider.json",
+    "file:src/test/resources/pacts/mobile-app-consumer-inventory-provider.json"
+})
+@Provider("inventory-provider")
+public class InventoryProviderPactTest {
+    // Tests will verify Pacts from both URLs.
+}
+````
+
+### 3. Separate States for Each Consumer
+The provider's state setup methods (@State) must cover all interactions for all consumers. For example:
+````java
+@State("State of a newly create order")
+public void setupForStorefrontConsumer() {
+    // Set up state for storefront-consumer
+}
+
+@State("State of a product with ID P101 is available in the inventory")
+public void setupForMobileAppConsumer() {
+    // Set up state for mobile-app-consumer
+}
+
+````
+
+### 4. Test Execution
+During test execution:
+1. The Pact framework fetches or loads all relevant Pacts.
+2. For each interaction in each Pact:
+    - It sets up the required provider state using the `@State` method.
+    - Verifies the response matches the contract.
+
+
+### 5. Publishing Results
+If you're using a Pact Broker, the results for each verification can be published back to the broker:
+````java
+System.setProperty("pact.verifier.publishResults", "true");
+System.setProperty("pact.provider.branch", "main");
+````
+
+### 6. Best Practices
+- Use descriptive `@State` names to avoid conflicts between consumers.
+- Regularly clean up unused Pacts in the broker to ensure tests only run for active consumers.
+- Use logging to debug issues for specific consumers if tests fail.
 
 
 
 
 # References
 - [Vendor Code Samples](https://docs.pactflow.io/docs/examples)
-- 

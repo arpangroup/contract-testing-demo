@@ -1,5 +1,6 @@
 package com.arpan.__rest_api_provider_app.contract;
 
+import au.com.dius.pact.provider.PactVerifyProvider;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.HttpsTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
@@ -9,6 +10,10 @@ import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import au.com.dius.pact.provider.junitsupport.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
+import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
+import com.arpan.__rest_api_provider_app.model.Product;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 /* https://docs.pact.io/implementation_guides/jvm/provider/junit5spring */
 /* https://github.com/pact-foundation/pact-plugins?tab=readme-ov-file#background */
 /* https://user-images.githubusercontent.com/53900/103729694-1e7e1400-5035-11eb-8d4e-641939791552.png */
+/* https://docs.pact.io/implementation_guides/jvm/provider/junit#selecting-the-pacts-to-verify-with-consumer-version-selectors-4314 */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Provider("inventory-provider")
 @PactBroker(url = "https://arpangroup.pactflow.io", authentication = @PactBrokerAuth(token = "pkqBnpXX3u4o5wErioDeXA"))
@@ -46,6 +52,7 @@ public class InventoryProviderPactTest {
     public static void setup() {
         System.setProperty("pact.verifier.publishResults", "true");
         System.setProperty("pact.provider.branch", "main");
+        System.setProperty("pact.verifier.verbose", "true");
     }
 
     @State("State of a product with ID P101 is available in the inventory")
@@ -63,12 +70,24 @@ public class InventoryProviderPactTest {
         System.out.println("Setting up provider state: State of a newly created order");
     }
 
-//    @PactVerifyProvider("A GET request to fetch the details of product ID P123")
-//    public String getProductDetails() throws JsonProcessingException {
-//        ProductResponse product = new ProductResponse("P123", "Samsung Mobile", 15000);
-//        product.setActive(true);
-//        return new ObjectMapper().writeValueAsString(product); // Ensure the provider returns the full response with 'isActive'
-//    }
+    /*@PactVerifyProvider("StoreFrontConsumerPactTest interaction to create a new product")
+    public String createNewProduct() throws JsonProcessingException {
+        // Intentionally returning a response with missing required fields to fail the test
+        // e.g., missing "productId" and returning a 400 status instead of the expected 201
+        String invalidResponse = "{ \"productName\": \"Product1\", \"price\": \"500\" }";
 
+        System.out.println("Returning invalid product details for failure test: " + invalidResponse); // Debug log
+
+        // This response is missing the price field, which will cause the pact verification to fail
+        return invalidResponse;
+    }*/
+
+    @au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors
+    public static SelectorBuilder consumerVersionSelectors() {
+        // Select Pacts for consumers deployed to production with branch 'FEAT-123'
+        return new SelectorBuilder()
+                .environment("production")
+                .branch("FEAT-123");
+    }
 
 }
