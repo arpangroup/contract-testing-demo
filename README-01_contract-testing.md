@@ -241,7 +241,40 @@ System.setProperty("pact.provider.branch", "main");
 - Regularly clean up unused Pacts in the broker to ensure tests only run for active consumers.
 - Use logging to debug issues for specific consumers if tests fail.
 
+### Q4. How Consumer Detects Provider Changes?
+Consumers don't automatically detect provider implementation issues. Instead:
+- The provider's verification results are published back to the Pact Broker.
+- The Pact Broker flags the contract as "not verified" or "failed" if the provider fails the test.
+- Consumers can use tools like Pact CLI, Pact Maven plugin, or CI pipelines to check the status of the contract in the Pact Broker.
 
+For example:
+- The consumer can query the broker to see if the latest contract has been successfully verified by the provider.
+
+### Q5. Will Consumer Contract Tests Fail If Provider Tests Fail?
+**No, not directly.** Consumer tests only verify the contract from the consumer's perspective, not the provider's implementation.
+
+However:
+- If the provider fails to adhere to the contract, the consumer may eventually break at runtime due to unexpected provider behavior.
+- To prevent this, set up a pipeline or CI integration where consumer builds are blocked if the provider fails to verify the contract.
+
+Consumers can query the Pact Broker for verification status using tools like Pact CLI or HTTP
+````bash
+pact-broker can-i-deploy \
+  --pacticipant consumer-name \
+  --version 1.0.0 \
+  --to-environment dev
+````
+
+### Recommended Setup
+1. Consumer Responsibilities:
+   - Generate a contract (Pact file).
+   - Publish it to the broker.
+   - **Ensure CI validates the contract is verified by the provider before proceeding.**
+2. Provider Responsibilities:
+    - Fetch and verify contracts from the broker during CI.
+    - Publish verification results back to the broker.
+3. Shared Workflow:
+    - Automate the `can-I-deploy` check in CI to ensure all contracts are verified before deployment.
 
 
 # References
