@@ -31,9 +31,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @PactBroker(url = "https://arpangroup.pactflow.io",
         authentication = @PactBrokerAuth(token = "pkqBnpXX3u4o5wErioDeXA"),
         consumerVersionSelectors= {
-            @VersionSelector(consumer = "storefront-consumer", tag = "DEV"),
+            @VersionSelector(consumer = "storefront-consumer", tag = "main"),
             //@VersionSelector(consumer = "mobile-app-consumer", tag = "STAGING"),
-            @VersionSelector(consumer = "mobile-app-consumer", tag = "DEV")
+            @VersionSelector(consumer = "mobile-app-consumer", tag = "main")
         },
         providerTags = "DEV"
 )
