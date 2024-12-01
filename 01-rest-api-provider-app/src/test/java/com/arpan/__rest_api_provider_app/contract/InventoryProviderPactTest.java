@@ -9,6 +9,8 @@ import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import au.com.dius.pact.provider.junitsupport.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,9 +37,15 @@ public class InventoryProviderPactTest {
 
     @BeforeEach
     void before(PactVerificationContext context) {
-        /** There are three main test targets you can use: HttpTestTarget, HttpsTestTarget and MessageTestTarget, PluginTestTarget. **/
+        /* There are three main test targets you can use: HttpTestTarget, HttpsTestTarget and MessageTestTarget, PluginTestTarget. */
         context.setTarget(new HttpTestTarget("localhost", 8080));
         // context.setTarget(new MessageTestTarget());
+    }
+
+    @BeforeAll
+    public static void setup() {
+        System.setProperty("pact.verifier.publishResults", "true");
+        System.setProperty("pact.provider.branch", "main");
     }
 
     @State("State of a product with ID P101 is available in the inventory")
@@ -61,5 +69,6 @@ public class InventoryProviderPactTest {
 //        product.setActive(true);
 //        return new ObjectMapper().writeValueAsString(product); // Ensure the provider returns the full response with 'isActive'
 //    }
+
 
 }
