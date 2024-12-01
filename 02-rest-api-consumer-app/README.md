@@ -238,6 +238,8 @@ And now we can run:
 ````shell
 mvn pact:publish
 or
+./mvnw pact:publish -Dpact.publish.consumer.version=v01 -Dpact.publish.consumer.branchName=DEV
+or
 ./mvnw pact:publish -Dpact.publish.consumer.version=$(git rev-parse HEAD) -Dpact.publish.consumer.branchName=$(git rev-parse --abbrev-ref HEAD)
 [INFO] Scanning for projects...
 [INFO] 

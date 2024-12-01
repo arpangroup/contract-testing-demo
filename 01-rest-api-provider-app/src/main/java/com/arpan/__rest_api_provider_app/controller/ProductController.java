@@ -4,6 +4,7 @@ import com.arpan.__rest_api_provider_app.model.Product;
 import com.arpan.__rest_api_provider_app.exception.BadRequestException;
 import com.arpan.__rest_api_provider_app.model.ProductCreateRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,9 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createNewProduct(ProductCreateRequestDto requestDto) {
+    public ResponseEntity<Product> createNewProduct(@RequestBody ProductCreateRequestDto requestDto) {
         Product product = new Product(null, requestDto.getProductName(), requestDto.getPrice());
-        return repository.save(product);
+        Product productResponse = repository.save(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
     }
 }

@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StoreFrontConsumerPactTest {
     private final ProductCreateRequestDto productCreateRequest = new ProductCreateRequestDto("Product1", 500);
     private final SimpleProductDto expectedProductCreateResponse = new SimpleProductDto("P1234", "Product1", 500);
-    private final DetailProductDto expectedProductDetailsResponse = new DetailProductDto("P1234", "Product1", 500, true);
+    private final DetailProductDto expectedProductDetailsResponse = new DetailProductDto("P101", "Product1", 500, true);
     private final String CONTENT_TYPE = "Content-Type";
     private final String APPLICATION_JSON = "application/json.*";
     private final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json; charset=UTF-8";
@@ -76,7 +76,12 @@ public class StoreFrontConsumerPactTest {
                 .willRespondWith()
                     .status(201)
                     .headers(Map.of("Content-Type", "application/json"))
-                    .body(new ObjectMapper().writeValueAsString(expectedProductCreateResponse))
+                    //.body(new ObjectMapper().writeValueAsString(expectedProductCreateResponse))
+                    .body(new PactDslJsonBody()
+                            .stringMatcher("productId", "^P.*", "P12345678") // Match productId starting with 'P'
+                            .stringType("productName", "Product1")
+                            .integerType("price", 500)
+                    )
                 .toPact(V4Pact.class);
     }
 
@@ -109,7 +114,12 @@ public class StoreFrontConsumerPactTest {
         // Simulating the POST request & Validate the response
         ResponseEntity<SimpleProductDto> postResponse = new RestTemplate().postForEntity(mockServer.getUrl() + "/api/products", productCreateRequest, SimpleProductDto.class);
         assertThat(postResponse.getStatusCode().value()).isEqualTo(201);
-        assertThat(postResponse.getBody()).usingRecursiveComparison().isEqualTo(expectedProductCreateResponse);
+        assertThat(postResponse.getBody().getProductId()).matches("^P.*");
+        //assertThat(postResponse.getBody()).usingRecursiveComparison().isEqualTo(expectedProductCreateResponse);
+        assertThat(postResponse.getBody())
+                .usingRecursiveComparison()
+                .ignoringFields("productId") // Ignore productId in the comparison
+                .isEqualTo(expectedProductCreateResponse);
     }
 
     @Pact(provider = "inventory-provider", consumer = "restaurant-consumer")
