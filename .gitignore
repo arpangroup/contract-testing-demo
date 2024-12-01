@@ -1,3 +1,15 @@
 **/.idea/
 **/.idea/**
 **/target/
+
+01-rest-api-provider-app/mvnw
+02-rest-api-consumer-app/mvnw
+03-rest-api-both_provider_consumer_contract_test/mvnw
+04-kafka-avro-producer/mvnw
+05-kafka-avro-consumer/mvnw
+
+01-rest-api-provider-app/mvnw.cmd
+02-rest-api-consumer-app/mvnw.cmd
+03-rest-api-both_provider_consumer_contract_test/mvnw.cmd
+04-kafka-avro-producer/mvnw.cmd
+05-kafka-avro-consumer/mvnw.cmd
