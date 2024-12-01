@@ -28,6 +28,11 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<env>dev</env>
+		<pact.broker.url>https://arpangroup.pactflow.io/</pact.broker.url>
+		<pact.broker.token>pkqBnpXX3u4o5wErioDeXA</pact.broker.token>
+		<pact.consumer.branch>feature/develop</pact.consumer.branch>
+		<pact.consumer.version>v-01</pact.consumer.version>
 	</properties>
 
 	<dependencies>
@@ -71,18 +76,102 @@
 				</configuration>
 			</plugin>
 
-			<!--Optional: Pact Maven Plugin for Pact Provider Verification-->
 			<plugin>
-				<groupId>au.com.dius.pact.provider</groupId>
-				<artifactId>maven</artifactId>
-				<version>4.1.11</version>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.9.10</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>revision</goal> <!-- Retrieves Git revision information -->
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
-					<pactBrokerUrl>https://arpangroup.pactflow.io/</pactBrokerUrl>
-                    <pactBrokerToken>pkqBnpXX3u4o5wErioDeXA</pactBrokerToken>
+					<generateGitPropertiesFile>false</generateGitPropertiesFile> <!-- Don't generate a properties file, just use Maven properties -->
 				</configuration>
 			</plugin>
 
+
+
+			<!--Optional: Pact Maven Plugin is part of the Pact-JVM Maven Plugin for provider-side Pact testing and publishing Pact files to a Pact Broker-->
+			<plugin>
+				<groupId>au.com.dius.pact.provider</groupId>
+				<artifactId>maven</artifactId>
+				<version>4.6.15</version>
+				<executions>
+					<execution>
+						<id>publish-pacts</id>
+						<phase>install</phase> <!-- Bind to the install phase -->
+						<goals>
+							<goal>publish</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!--<pactDirectory>target/pacts</pactDirectory>-->
+					<pactBrokerUrl>${pact.broker.url}</pactBrokerUrl>
+                    <pactBrokerToken>${pact.broker.token}</pactBrokerToken>
+					<!--<pactBrokerAuthenticationScheme>Bearer</pactBrokerAuthenticationScheme>-->
+					<!--<projectVersion>${git.shorthash}</projectVersion>-->
+					<projectVersion>${pact.consumer.version}</projectVersion>
+					<trimSnapshot>true</trimSnapshot>
+					<skipPactPublish>false</skipPactPublish>
+					<pact.verifier.publishResults>true</pact.verifier.publishResults>
+					<tags>
+						<!--<tag>${pact.consumer.branch}</tag>-->
+						<tag>${git.branch}</tag> <!-- automatically pull the branchName from git -->
+						<tag>${git.commit.id}</tag>
+					</tags>
+					<environment>
+						<name>test</name>
+					</environment>
+					<reports>
+						<report>console</report>
+						<report>json</report>
+						<report>markdown</report>
+					</reports>
+				</configuration>
+			</plugin>
+
+
+				<!--<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>3.1.0</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>exec</goal>
+							</goals>
+							<phase>verify</phase> &lt;!&ndash; After publishing the pact &ndash;&gt;
+							<configuration>
+								<executable>curl</executable>
+								<arguments>
+									<argument>-X</argument>
+									<argument>POST</argument>
+									<argument>https://arpangroup.pactflow.io/api/v1/pacts/provider/{provider}/consumer/{consumer}/version/{version}/environment</argument>
+									<argument>-H</argument>
+									<argument>Authorization: Bearer ${pact.broker.token}</argument>
+									<argument>-d</argument>
+									<argument>{"environment": "dev"}</argument> &lt;!&ndash; Pass environment dynamically &ndash;&gt;
+								</arguments>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>-->
+
+
+
+
 		</plugins>
 	</build>
-
+	<profiles>
+		<profile>
+			<id>default</id>
+			<properties>
+				<consumer.version>VERSION-1</consumer.version> <!-- Set default version here -->
+			</properties>
+		</profile>
+	</profiles>
 </project>

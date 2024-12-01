@@ -13,6 +13,7 @@ import com.arpan.__rest_api_consumer_app.model.DetailProductDto;
 import com.arpan.__rest_api_consumer_app.model.ProductCreateRequestDto;
 import com.arpan.__rest_api_consumer_app.model.SimpleProductDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -34,6 +35,14 @@ public class StoreFrontConsumerPactTest {
     private final String CONTENT_TYPE = "Content-Type";
     private final String APPLICATION_JSON = "application/json.*";
     private final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json; charset=UTF-8";
+
+    @BeforeAll
+    public static void setup() {
+        System.setProperty("pact.consumer.version", "1.0.0");
+        System.setProperty("pact.consumer.branch", "feature/develop");
+        System.out.println("Consumer Version: " + System.getProperty("pact.consumer.version"));
+        System.out.println("Consumer Branch: " + System.getProperty("pact.consumer.branch"));
+    }
 
 
     @Pact(provider = "inventory-provider", consumer = "storefront-consumer")
@@ -122,12 +131,12 @@ public class StoreFrontConsumerPactTest {
                 .isEqualTo(expectedProductCreateResponse);
     }
 
-    @Pact(provider = "inventory-provider", consumer = "restaurant-consumer")
+    @Pact(provider = "inventory-provider", consumer = "mobile-app-consumer")
     public V4Pact createProductDetailsPact2(PactDslWithProvider builder) throws IOException {
         return builder
                 // Second interaction
-                .given("State of a product with ID P101 is available in the Restaurant") // State
-                .uponReceiving("StoreFrontConsumerPactTest interaction to fetch the details of product by ID P101 for Restaurant") // Interaction
+                .given("State of a product with ID P101 is available in the MobileApp") // State
+                .uponReceiving("StoreFrontConsumerPactTest interaction to fetch the details of product by ID P101 for MobileApp") // Interaction
                     .method("GET")
                     .path("/api/products/P101")
                 .willRespondWith()
@@ -139,7 +148,7 @@ public class StoreFrontConsumerPactTest {
 
     @Test
     @PactTestFor(pactMethod = "createProductDetailsPact2", pactVersion = PactSpecVersion.V4)
-    void testProductDetailsPact__for__Restaurant(MockServer mockServer) throws Exception {
+    void testProductDetailsPact__for__MobileApp(MockServer mockServer) throws Exception {
         ResponseEntity<DetailProductDto> productResponse = new RestTemplate().getForEntity(mockServer.getUrl() + "/api/products/P101", DetailProductDto.class);
         DetailProductDto actualProductDetails = productResponse.getBody();
 

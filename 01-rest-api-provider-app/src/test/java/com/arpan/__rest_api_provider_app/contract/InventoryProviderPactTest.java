@@ -5,12 +5,10 @@ import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.HttpsTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
+import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
-import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
-import au.com.dius.pact.provider.junitsupport.loader.PactBrokerAuth;
-import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
-import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
+import au.com.dius.pact.provider.junitsupport.loader.*;
 import com.arpan.__rest_api_provider_app.model.Product;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,9 +28,18 @@ import org.springframework.test.web.servlet.MockMvc;
 /* https://docs.pact.io/implementation_guides/jvm/provider/junit#selecting-the-pacts-to-verify-with-consumer-version-selectors-4314 */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Provider("inventory-provider")
-@PactBroker(url = "https://arpangroup.pactflow.io", authentication = @PactBrokerAuth(token = "pkqBnpXX3u4o5wErioDeXA"))
+@PactBroker(url = "https://arpangroup.pactflow.io",
+        authentication = @PactBrokerAuth(token = "pkqBnpXX3u4o5wErioDeXA"),
+        consumerVersionSelectors= {
+            @VersionSelector(consumer = "storefront-consumer", tag = "DEV"),
+            //@VersionSelector(consumer = "mobile-app-consumer", tag = "STAGING"),
+            @VersionSelector(consumer = "mobile-app-consumer", tag = "DEV")
+        },
+        providerTags = "DEV"
+)
 //@PactFolder("src/test/resources/pacts/")
 //@PactUrl(urls = "file:C:\\temp\\pacts\\consumerservice-providerservice-pact.json")
+//@IgnoreNoPactsToVerify
 public class InventoryProviderPactTest {
 
     @TestTemplate
@@ -60,9 +67,9 @@ public class InventoryProviderPactTest {
         // Set up mocked service or database to return the correct response for P101
     }
 
-    @State("State of a product with ID P101 is available in the Restaurant")
-    public void setupProductP101Restaurant() {
-        // Return a different structure or additional fields for the Restaurant Pact
+    @State("State of a product with ID P101 is available in the MobileApp")
+    public void setupProductP101MobileApp() {
+        // Return a different structure or additional fields for the MobileApp Pact
     }
 
     @State("State of a newly create order")
@@ -82,12 +89,5 @@ public class InventoryProviderPactTest {
         return invalidResponse;
     }*/
 
-    @au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors
-    public static SelectorBuilder consumerVersionSelectors() {
-        // Select Pacts for consumers deployed to production with branch 'FEAT-123'
-        return new SelectorBuilder()
-                .environment("production")
-                .branch("FEAT-123");
-    }
 
 }

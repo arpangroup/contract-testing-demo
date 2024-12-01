@@ -5,7 +5,11 @@
 - https://docs.confluent.io/platform/current/get-started/platform-quickstart.html
 - 
 
-
+````bash
+curl -X POST "https://arpangroup.pactflow.io/api/v1/pacts/provider/{provider}/consumer/{consumer}/version/{version}/environment" \
+  -H "Authorization: Bearer your-pact-broker-token" \
+  -d '{"environment": "dev"}'
+````
 
 ## Overview:
 
