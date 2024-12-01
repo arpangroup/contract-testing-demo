@@ -88,6 +88,4 @@ public class InventoryProviderPactTest {
         // This response is missing the price field, which will cause the pact verification to fail
         return invalidResponse;
     }*/
-
-
 }
