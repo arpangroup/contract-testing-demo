@@ -1,8 +1,8 @@
 # CDCT Consumer Contract Testing
-https://docs.pact.io/implementation_guides/jvm/consumer/junit5
-https://docs.pact.io/implementation_guides/jvm/provider/junit5
-https://github.com/pact-foundation/pact-jvm/blob/master/consumer/junit5/src/test/groovy/au/com/dius/pact/consumer/junit5/MultiTest.groovy
-
+- https://docs.pact.io/implementation_guides/jvm/consumer/junit5
+- https://docs.pact.io/implementation_guides/jvm/provider/junit5
+- https://github.com/pact-foundation/pact-jvm/blob/master/consumer/junit5/src/test/groovy/au/com/dius/pact/consumer/junit5/MultiTest.groovy
+- https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step11#step-11---using-a-pact-broker
 
 
 ## Project Structure
@@ -261,3 +261,118 @@ Alternatively we can manually publish the pact file using the shell script as be
 ````bash
 ````
 
+<br/>
+
+---
+# Verify contracts on Provider
+````java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Provider("ProductService")
+@PactBroker // <--
+public class PactVerificationTest {
+  @LocalServerPort
+  private int port;
+
+  @Autowired
+  private ProductRepository productRepository;
+
+  @BeforeEach
+  void setup(PactVerificationContext context) {
+    context.setTarget(new HttpTestTarget("localhost", port));
+  }
+
+  @au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors
+    public static SelectorBuilder consumerVersionSelectors() {
+      // Select Pacts for consumers deployed or released to production, those on the main branch
+      // and those on a named branch step11, for use in our workshop
+      return new SelectorBuilder()
+        .deployedOrReleased()
+        .mainBranch()
+        .branch("step11");
+    }
+
+  @TestTemplate
+  @ExtendWith(PactVerificationSpringProvider.class) // <--
+  void pactVerificationTestTemplate(PactVerificationContext context, HttpRequest request) {
+    // WARNING: Do not modify anything else on the request, because you could invalidate the contract
+    if (request.containsHeader("Authorization")) {
+      request.setHeader("Authorization", "Bearer " + generateToken());
+    }
+    context.verifyInteraction();
+  }
+
+````
+Let's run the provider verification one last time after this change:
+````shell
+provider ❯ ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=$(git rev-parse HEAD) -Dpact.provider.branch=$(git rev-parse --abbrev-ref HEAD)
+
+<<< Omitted >>>
+
+Verifying a pact between ProductCatalogue (41997003a6f42fe66ea00b234f05b47200474e49) and ProductService
+
+  Notices:
+    1) The pact at http://localhost:9292/pacts/provider/ProductService/consumer/ProductCatalogue/pact-version/5565ba9dfe81399a66afbebb620a3d79df43d46a is being verified because the pact content belongs to the consumer version matching the following criterion:
+    * latest version from branch 'step11' (41997003a6f42fe66ea00b234f05b47200474e49)
+
+  [from Pact Broker http://localhost:9292/pacts/provider/ProductService/consumer/ProductCatalogue/pact-version/5565ba9dfe81399a66afbebb620a3d79df43d46a/metadata/c1tdW2JdPXN0ZXAxMSZzW11bbF09dHJ1ZSZzW11bY3ZdPTE2]
+  get all products with no auth token
+2021-03-01 10:32:06.625  INFO 32791 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-03-01 10:32:06.625  INFO 32791 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2021-03-01 10:32:06.625  INFO 32791 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
+      
+<<< Omitted >>>
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-service ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+````
+As part of this process, the results of the verification - the outcome (boolean) and the detailed information about the failures at the interaction level - are published to the Broker also.
+
+This is one of the Broker's more powerful features. Referred to as Verifications, it allows providers to report back the status of a verification to the broker. You'll get a quick view of the status of each consumer and provider on a nice dashboard. But it is much more important than this!
+
+
+## Can I deploy?
+````
+consumer ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductCatalogue' -DpacticipantVersion=$(git rev-parse HEAD) -DtoEnvironment=test
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
+[INFO] Building product-catalogue 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven:4.6.5:can-i-deploy (default-cli) @ product-catalogue ---
+Computer says no ¯\_(ツ)_/¯ 
+
+There is no verified pact between version 41997003a6f42fe66ea00b234f05b47200474e49 of ProductCatalogue and a version of ProductService currently in test (no version is currently recorded as deployed/released in this environment)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.611 s
+[INFO] Finished at: 2024-01-30T16:16:20Z
+[INFO] ------------------------------------------------------------------------
+
+provider ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductService' -DpacticipantVersion=$(git rev-parse HEAD) -DtoEnvironment=test
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< io.pact.workshop:product-service >------------------
+[INFO] Building product-service 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven:4.1.17:can-i-deploy (default-cli) @ product-service ---
+Computer says yes \o/ 
+
+All required verification results are published and successful
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+````
