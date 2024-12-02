@@ -12,9 +12,11 @@ import au.com.dius.pact.core.model.annotations.Pact;
 import com.arpan.__rest_api_consumer_app.model.DetailProductDto;
 import com.arpan.__rest_api_consumer_app.model.ProductCreateRequestDto;
 import com.arpan.__rest_api_consumer_app.model.SimpleProductDto;
+import com.arpan.__rest_api_consumer_app.service.ProductServiceClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,6 +37,9 @@ public class StoreFrontConsumerPactTest {
     private final String CONTENT_TYPE = "Content-Type";
     private final String APPLICATION_JSON = "application/json.*";
     private final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json; charset=UTF-8";
+
+    @Autowired
+    ProductServiceClient productServiceClient;
 
     @BeforeAll
     public static void setup() {
@@ -108,6 +113,11 @@ public class StoreFrontConsumerPactTest {
         // using a simulated server rather than making real API
         ResponseEntity<SimpleProductDto> productResponse = new RestTemplate().getForEntity(mockServer.getUrl() + "/api/products/P101", SimpleProductDto.class);
         SimpleProductDto actualProduct = productResponse.getBody();
+        // or by calling the actual service class:
+        // productServiceClient.setBaseUrl(mockServer.getUrl());
+        // ResponseEntity<DetailProductDto> productResponse = productServiceClient.fetchProductById("P101");
+
+
 
         // Step3: Validate the response
         assertThat(productResponse.getStatusCode().is2xxSuccessful()).isTrue();

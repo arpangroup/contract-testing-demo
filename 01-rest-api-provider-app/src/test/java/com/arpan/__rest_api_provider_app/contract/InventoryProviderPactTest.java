@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 /* https://github.com/pact-foundation/pact-plugins?tab=readme-ov-file#background */
 /* https://user-images.githubusercontent.com/53900/103729694-1e7e1400-5035-11eb-8d4e-641939791552.png */
 /* https://docs.pact.io/implementation_guides/jvm/provider/junit#selecting-the-pacts-to-verify-with-consumer-version-selectors-4314 */
+/* https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Provider("inventory-provider")
 @PactBroker(url = "https://arpangroup.pactflow.io",
