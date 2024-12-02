@@ -5,10 +5,9 @@ import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.HttpsTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
-import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
-import au.com.dius.pact.provider.junitsupport.Provider;
-import au.com.dius.pact.provider.junitsupport.State;
+import au.com.dius.pact.provider.junitsupport.*;
 import au.com.dius.pact.provider.junitsupport.loader.*;
+import com.arpan.__rest_api_provider_app.controller.ProductRepository;
 import com.arpan.__rest_api_provider_app.model.Product;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +18,10 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
 
 /* https://docs.pact.io/implementation_guides/jvm/provider/spring6 */
 /* https://docs.pact.io/implementation_guides/jvm/provider/junit5spring */
@@ -41,20 +43,13 @@ import org.springframework.test.web.servlet.MockMvc;
 //@PactFolder("src/test/resources/pacts/")
 //@PactUrl(urls = "file:C:\\temp\\pacts\\consumerservice-providerservice-pact.json")
 //@IgnoreNoPactsToVerify
+//@IgnoreMissingStateChange
 public class InventoryProviderPactTest {
+    @LocalServerPort
+    private int port;
 
-    @TestTemplate
-    @ExtendWith(PactVerificationInvocationContextProvider.class)
-    void pactVerificationTestTemplate(PactVerificationContext context) {
-        context.verifyInteraction();
-    }
-
-    @BeforeEach
-    void before(PactVerificationContext context) {
-        /* There are three main test targets you can use: HttpTestTarget, HttpsTestTarget and MessageTestTarget, PluginTestTarget. */
-        context.setTarget(new HttpTestTarget("localhost", 8080));
-        // context.setTarget(new MessageTestTarget());
-    }
+    @Autowired
+    ProductRepository productRepository;
 
     @BeforeAll
     public static void setup() {
@@ -63,9 +58,29 @@ public class InventoryProviderPactTest {
         System.setProperty("pact.verifier.verbose", "true");
     }
 
-    @State("State of a product with ID P101 is available in the inventory")
+    @BeforeEach
+    void before(PactVerificationContext context) {
+        /* There are three main test targets you can use: HttpTestTarget, HttpsTestTarget and MessageTestTarget, PluginTestTarget. */
+        context.setTarget(new HttpTestTarget("localhost", port));
+        // context.setTarget(new MessageTestTarget());
+    }
+
+    @TestTemplate
+    @ExtendWith(PactVerificationInvocationContextProvider.class)
+    void pactVerificationTestTemplate(PactVerificationContext context) {
+        context.verifyInteraction();
+    }
+
+    @State(value = "State of a product with ID P101 is available in the inventory", action = StateChangeAction.SETUP)
     public void setupProductP101Inventory() {
         // Set up mocked service or database to return the correct response for P101
+        productRepository.deleteAll();
+        productRepository.saveAll(Arrays.asList(
+                new Product("P101", "Test Product 1", 100),
+                new Product("P102", "Test Product 2", 200),
+                new Product("P103", "Test Product 3", 300),
+                new Product("P104", "Test Product 4", 400)
+        ));
     }
 
     @State("State of a product with ID P101 is available in the MobileApp")

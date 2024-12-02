@@ -44,6 +44,13 @@ public class ProductRepository {
             e.printStackTrace();
             throw new BadRequestException();
         }
+    }
 
+    public void deleteAll() {
+        this.products = new ArrayList<>();
+    }
+
+    public void saveAll(List<Product> products) {
+        this.products.addAll(products);
     }
 }
